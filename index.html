@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>evade</title>
+  <link rel="stylesheet" href="./css/main.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
+</head>
+
+<body>
+  <canvas id="mycanvas"></canvas>
+  <script type='text/javascript'>
+    //game will be draw in the canvas
+    var canvas = document.getElementById("mycanvas");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    //storing 2d rendering context
+    var ctx = canvas.getContext("2d");
+
+    //tracks time to increase the speed of the enemy
+    var timeTracker=new Date().getTime();
+    //enemy moving speed
+    var enemeyMovingSpeed = 3;
+    //GAME FPS
+    var FPS = 30;
+    setInterval(function() {
+      update();
+      draw();
+    }, 1000 / FPS);
+    var textX = 50;
+    var textY = 50;
+    //use to update the game
+    function update() {
+      // textX += 1;
+      // textY += 1;
+      //update enemy movement
+      e1.y += enemeyMovingSpeed;
+      checkCollison();
+      reDrawEnemy();
+      increaseEnemySpeed();
+    }
+    //enemy out of bound so redrawn enemy with y =0 coordinate
+    function reDrawEnemy() {
+
+      if (e1.y > canvas.height) {
+        //redraw enemy in different lane
+        let randomNumber = Math.floor((Math.random() * 3) + 0);
+        e1.x = e1.width * randomNumber;
+        e1.y = 0;
+      }
+    }
+
+    function checkCollison() {
+      //check collison
+      if (!(p1.y > (e1.y + e1.height) || p1.y + p1.height < e1.y || (p1.x > (e1.x + e1.width) || p1.x + p1.width < e1.x))) {
+        console.log("collide");
+        //game over
+      }
+    }
+
+    keyboardEvent();
+
+    //keyboard events
+    function keyboardEvent() {
+      $("body").keydown(function(event) {
+        /* Act on the event */
+        if (event.keyCode == 37) { //left
+          p1.x -= p1.width;
+        }
+        if (event.keyCode == 39) { //right
+          p1.x += p1.width;
+        }
+        if (event.keyCode == 32) { //space
+          // player.shoot();
+          bullet.draw();
+        }
+        // player.shoot = function(){
+        //   console.log("pew pew");
+        //   bullet.draw();
+        // }
+        // make the player bound with the canvas
+        // if (p1.x > canvas.width - p1.height) {
+        //   p1.x = canvas.width - p1.height;
+        // }
+      });
+
+    }
+    class Player {
+      constructor(color, x, y, width, height) {
+        this.color = color;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+      }
+      //draw player
+      draw() {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+      }
+    }
+    //
+    var p1 = new Player("black",0, 420, 150, 150);
+    var e1 = new Player("grey",0, 0, 150, 150);
+    //use to draw shapes required for the game
+    function draw() {
+      //use clear to clear screen to clear the previous times that was drawn in canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // ctx.fillStyle = "blue";
+      // ctx.font="50px Georgia";
+      // ctx.fillText("hello world", textX, textY);
+      //draw player
+
+      p1.draw();
+      e1.draw();
+      laneDefiner(0,0,0,canvas.height,"black");
+    }
+
+    var bullet = {
+      color: "yellow",
+      x: player.x,
+      y: 20,
+      width: 10,
+      height: 10,
+      draw: function() {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+      }
+    }
+  //tracks time to increase the speed of the enemy
+    function increaseEnemySpeed(){
+      //get the current time
+      var currentGameTime = new Date().getTime();
+      //only increase if the time has passed
+      console.log(currentGameTime - timeTracker);
+
+      if(currentGameTime - timeTracker > 50000){
+        timeTracker =currentGameTime;
+        console.log("e1.y " + e1.y);
+        enemeyMovingSpeed += 5;
+      }
+    }
+
+    function laneDefiner(startX,startY,endX, endY,color){
+      ctx.beginPath();
+      ctx.setLineDash([]);
+      ctx.lineWidth=3;
+      ctx.moveTo(startX ,startY);
+      ctx.lineTo(endX,endY);
+      ctx.strokeStyle = color;
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.setLineDash([10,8]);
+      ctx.moveTo(startX + e1.width,startY);
+      ctx.lineTo(endX+ e1.width,endY);
+      ctx.strokeStyle = color;
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.setLineDash([10,8]);
+      ctx.moveTo(startX + e1.width + e1.width,startY);
+      ctx.lineTo(endX+ e1.width + e1.width,endY );
+      ctx.strokeStyle = color;
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.setLineDash([]);
+      ctx.moveTo(startX + e1.width + e1.width + e1.width,startY);
+      ctx.lineTo(endX+ e1.width + e1.width + e1.width,endY );
+      ctx.strokeStyle = color;
+      ctx.closePath();
+      ctx.stroke();
+
+    }
+  </script>
+
+</body>
+
+</html>
